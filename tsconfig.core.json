@@ -1,0 +1,9 @@
+{
+  "//": "Проверка, что ядро SDK не использует API Node.js: без @types/node и без src/node.ts.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/node.ts"]
+}

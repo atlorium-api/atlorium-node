@@ -1,0 +1,99 @@
+{
+  "name": "atlorium",
+  "version": "0.1.0",
+  "description": "Официальный SDK Atlorium для TypeScript и JavaScript: 23 B2B API для российского рынка — ЕГРЮЛ/ЕГРИП, БИК ЦБ, SWIFT, ГАР/ФИАС, геокодинг, OCR, проверка телефона, почты, IP, BIN, SSL и другие.",
+  "keywords": [
+    "atlorium",
+    "sdk",
+    "api",
+    "egrul",
+    "егрюл",
+    "инн",
+    "бик",
+    "фиас",
+    "гар",
+    "geocoding",
+    "ocr",
+    "swift",
+    "bin",
+    "phone-validation",
+    "email-validation",
+    "russia"
+  ],
+  "homepage": "https://atlorium.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atlorium-api/atlorium-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atlorium-api/atlorium-node/issues"
+  },
+  "license": "MIT",
+  "author": "Atlorium (https://atlorium.com)",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "node": [
+        "./dist/node.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./node": {
+      "import": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
+      },
+      "require": {
+        "types": "./dist/node.d.cts",
+        "default": "./dist/node.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "fetch-specs": "node scripts/fetch-specs.mjs",
+    "generate": "node scripts/generate.mjs",
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.core.json && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "check:exports": "node scripts/check-exports.mjs && node scripts/check-exports.cjs",
+    "smoke": "node scripts/smoke.mjs",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build && npm run check:exports",
+    "version": "node scripts/sync-version.mjs && git add src/version.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}

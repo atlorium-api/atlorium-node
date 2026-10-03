@@ -1,0 +1,52 @@
+# Публикация в npm по тегу вида v0.1.0 (или v0.2.0-beta.1 — пререлиз уходит под dist-tag next)
+# через Trusted Publishing (OIDC, без токенов в секретах).
+#
+# Самую первую версию публикует человек вручную: trusted publisher настраивается в настройках уже
+# существующего пакета. Затем на npmjs.com → atlorium → Settings → Trusted Publisher:
+# GitHub Actions, organization atlorium-api, repository atlorium-node, workflow publish.yml,
+# environment npm.
+name: Publish to npm
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing требует npm CLI 11.5.1+. Node 24 поставляется с npm 11.x; обновляем,
+      # только если на раннере оказалась более старая версия.
+      - name: npm CLI supports trusted publishing
+        run: |
+          npm --version
+          if ! node -e "const [a, b, c] = process.argv[1].split('.').map(Number); process.exit(a > 11 || (a === 11 && (b > 5 || (b === 5 && c >= 1))) ? 0 : 1)" "$(npm --version)"; then
+            npm install -g npm@^11.5.1
+            npm --version
+          fi
+      - name: Tag matches package version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "Тег $GITHUB_REF_NAME не совпадает с версией $version"; exit 1; }
+      - run: npm ci
+      # prepublishOnly прогонит typecheck, тесты, сборку и проверку экспортов; provenance подпишется автоматически.
+      # Пререлиз (в версии есть дефис: 0.2.0-beta.1) публикуется с dist-tag next, чтобы не стать latest.
+      - name: Publish
+        run: |
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi
